@@ -1,20 +1,20 @@
 use std::process::exit;
 
-use winit::window;
+use winit::{event, window};
 
 mod chunk;
 mod mesh;
 
-struct State<'a> {
-    surface: wgpu::Surface<'a>,
+struct State {
+    surface: wgpu::Surface<'static>,
     device: wgpu::Device,
     queue: wgpu::Queue,
     config: wgpu::SurfaceConfiguration,
     size: winit::dpi::PhysicalSize<u32>
 }
 
-    impl <'a> State<'a> {
-        async fn new(window: &'a winit::window::Window) -> Self {
+    impl State {
+        async fn new(window: std::sync::Arc<winit::window::Window>) -> Self {
             let size = window.inner_size();
             
             let instance = wgpu::Instance::new(wgpu::InstanceDescriptor::default());
@@ -80,28 +80,57 @@ struct State<'a> {
             output.present();
             Ok(())
         }
+
+        fn resize(&mut self, new_size: winit::dpi::PhysicalSize<u32>) {
+            if new_size.width > 0 && new_size.height > 0 {
+                self.size = new_size;
+                self.config.width = new_size.width;
+                self.config.height = new_size.height;
+                self.surface.configure(&self.device, &self.config);
+            }
+        }
+
+
     }
 
 
 fn main() {
     let event_loop = winit::event_loop::EventLoop::new().unwrap(); 
     
-    let window = winit::window::WindowBuilder::new()
-    .with_title("Voxel Engine")
-    .build(&event_loop)
-    .unwrap();
+    let window = std::sync::Arc::new(
+        winit::window::WindowBuilder::new()
+            .with_title("Voxel Enging")
+            .build(&event_loop)
+            .unwrap()
+    );
+
+    let mut state = pollster::block_on(State::new(window.clone()));
 
     event_loop.run(move |event, elwt| {
-        match event {
-            winit::event::Event::WindowEvent { 
-                event: winit::event::WindowEvent::CloseRequested,
-                ..
-            } => {
-                println!("Closing window!");
-                elwt.exit(); 
+    match event {
+        winit::event::Event::WindowEvent { event, ..} => {
+            match event {
+                winit::event::WindowEvent::Resized(physical_size) => {
+                    state.resize(physical_size);
+                }
+
+                winit::event::WindowEvent::CloseRequested => {
+                    println!("Closing window!");
+                    elwt.exit();
+                }
+                winit::event::WindowEvent::RedrawRequested => {
+                    match state.render() {
+                        Ok(_) => {}
+                        Err(wgpu::SurfaceError::Outdated) => state.resize(state.size),
+                        Err(e) => eprintln!("{:?}", e),
+                    }
+                    window.request_redraw();
+                }
+                _ => {}
             }
-            _ => ()
         }
-    }).unwrap();
+        _ => ()
+    }
+}).unwrap();
 }
 
