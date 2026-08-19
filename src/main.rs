@@ -30,9 +30,48 @@ impl Vertex {
 }
 
 const VERTICES: &[Vertex] = &[
-    Vertex { position: [0.0, 0.5, 0.0], color: [1.0, 0.0, 0.0] },
-    Vertex { position: [-0.5, -0.5, 0.0], color: [0.0, 1.0, 0.0] },
-    Vertex { position: [0.5, -0.5, 0.0], color: [1.0, 0.0, 1.0] },
+    // Front face (Red)
+    Vertex { position: [-0.5, -0.5,  0.5], color: [1.0, 0.0, 0.0] },
+    Vertex { position: [ 0.5, -0.5,  0.5], color: [1.0, 0.0, 0.0] },
+    Vertex { position: [ 0.5,  0.5,  0.5], color: [1.0, 0.0, 0.0] },
+    Vertex { position: [-0.5, -0.5,  0.5], color: [1.0, 0.0, 0.0] },
+    Vertex { position: [ 0.5,  0.5,  0.5], color: [1.0, 0.0, 0.0] },
+    Vertex { position: [-0.5,  0.5,  0.5], color: [1.0, 0.0, 0.0] },
+
+    Vertex { position: [-0.5, -0.5, -0.5], color: [0.0, 1.0, 0.0] },
+    Vertex { position: [-0.5,  0.5, -0.5], color: [0.0, 1.0, 0.0] },
+    Vertex { position: [ 0.5,  0.5, -0.5], color: [0.0, 1.0, 0.0] },
+    Vertex { position: [-0.5, -0.5, -0.5], color: [0.0, 1.0, 0.0] },
+    Vertex { position: [ 0.5,  0.5, -0.5], color: [0.0, 1.0, 0.0] },
+    Vertex { position: [ 0.5, -0.5, -0.5], color: [0.0, 1.0, 0.0] },
+
+    Vertex { position: [-0.5,  0.5, -0.5], color: [0.0, 0.0, 1.0] },
+    Vertex { position: [-0.5,  0.5,  0.5], color: [0.0, 0.0, 1.0] },
+    Vertex { position: [ 0.5,  0.5,  0.5], color: [0.0, 0.0, 1.0] },
+    Vertex { position: [-0.5,  0.5, -0.5], color: [0.0, 0.0, 1.0] },
+    Vertex { position: [ 0.5,  0.5,  0.5], color: [0.0, 0.0, 1.0] },
+    Vertex { position: [ 0.5,  0.5, -0.5], color: [0.0, 0.0, 1.0] },
+
+    Vertex { position: [-0.5, -0.5, -0.5], color: [1.0, 1.0, 0.0] },
+    Vertex { position: [ 0.5, -0.5, -0.5], color: [1.0, 1.0, 0.0] },
+    Vertex { position: [ 0.5, -0.5,  0.5], color: [1.0, 1.0, 0.0] },
+    Vertex { position: [-0.5, -0.5, -0.5], color: [1.0, 1.0, 0.0] },
+    Vertex { position: [ 0.5, -0.5,  0.5], color: [1.0, 1.0, 0.0] },
+    Vertex { position: [-0.5, -0.5,  0.5], color: [1.0, 1.0, 0.0] },
+
+    Vertex { position: [ 0.5, -0.5, -0.5], color: [1.0, 0.0, 1.0] },
+    Vertex { position: [ 0.5,  0.5, -0.5], color: [1.0, 0.0, 1.0] },
+    Vertex { position: [ 0.5,  0.5,  0.5], color: [1.0, 0.0, 1.0] },
+    Vertex { position: [ 0.5, -0.5, -0.5], color: [1.0, 0.0, 1.0] },
+    Vertex { position: [ 0.5,  0.5,  0.5], color: [1.0, 0.0, 1.0] },
+    Vertex { position: [ 0.5, -0.5,  0.5], color: [1.0, 0.0, 1.0] },
+
+    Vertex { position: [-0.5, -0.5, -0.5], color: [0.0, 1.0, 1.0] },
+    Vertex { position: [-0.5, -0.5,  0.5], color: [0.0, 1.0, 1.0] },
+    Vertex { position: [-0.5,  0.5,  0.5], color: [0.0, 1.0, 1.0] },
+    Vertex { position: [-0.5, -0.5, -0.5], color: [0.0, 1.0, 1.0] },
+    Vertex { position: [-0.5,  0.5,  0.5], color: [0.0, 1.0, 1.0] },
+    Vertex { position: [-0.5,  0.5, -0.5], color: [0.0, 1.0, 1.0] },
 ];
 
 struct State {
@@ -86,7 +125,7 @@ struct State {
 
             let camera_matrix = cgmath::perspective(cgmath::Deg(45.0_f32), size.width as f32 / size.height as f32, 0.1_f32, 100.0_f32)
             * cgmath::Matrix4::look_at_rh(
-                cgmath::Point3::new(0.0_f32, 1.0_f32, 2.0_f32), 
+                cgmath::Point3::new(1.5_f32, 1.0_f32, 2.0_f32), 
                 cgmath::Point3::new(0.0_f32, 0.0_f32, 0.0_f32), 
                 cgmath::Vector3::unit_y(),
             );
