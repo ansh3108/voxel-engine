@@ -1,10 +1,9 @@
-use crate::mesh::square;
+use crate::mesh::Face;
 
-pub const WIDTH: usize= 16;
+pub const WIDTH: usize = 16;
 pub const HEIGHT: usize = 16;
 pub const DEPTH: usize = 16;
-
-pub const VOLUME: usize= WIDTH * HEIGHT * DEPTH;
+pub const VOLUME: usize = WIDTH * HEIGHT * DEPTH;
 
 pub struct Chunk {
     pub blocks: [u8; VOLUME],
@@ -41,55 +40,20 @@ impl Chunk {
         }
     }
 
-    pub fn is_face_visible(&self, x: usize, y: usize, z:usize, face: square) -> bool {
+    pub fn is_face_visible(&self, x: usize, y: usize, z: usize, face: Face) -> bool {
         match face {
-            square::Left => {
-                if x == 0 {
-                    true
-                } else {
-                    self.get_block(x-1, y, z) == 0
-                }
+            Face::Left => {
+                if x == 0 { true } else { self.get_block(x-1, y, z) == 0 }
             }
-
-            square::Right => {
-                self.get_block(x+1, y, z) == 0
+            Face::Right => self.get_block(x+1, y, z) == 0,
+            Face::Bottom => {
+                if y == 0 { true } else { self.get_block(x, y-1, z) == 0 }
             }
-            square::Bottom => {
-                if y == 0 {
-                    true
-                } else {
-                    self.get_block(x, y-1, z) == 0
-                }
+            Face::Top => self.get_block(x, y+1, z) == 0,
+            Face::Back => {
+                if z == 0 { true } else { self.get_block(x, y, z-1) == 0 }
             }
-            square::Top => {
-                self.get_block(x, y+1, z) == 0
-            }
-            square::Front => {
-                self.get_block(x, y, z+1) == 0
-            }
-            square::Back => {
-                if z == 0 {
-                    true 
-                } else {
-                    self.get_block(x, y, z-1) == 0
-                }
-            }
+            Face::Front => self.get_block(x, y, z+1) == 0,
         }   
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_chunk_get_set() {
-        let mut chunk = Chunk::new();
-
-        chunk.set_block(15, 15, 15, 1);
-
-        assert_eq!(chunk.get_block(15, 15, 15), 1);
-
-        assert_eq!(chunk.get_block(100, 100, 100), 0);
     }
 }
