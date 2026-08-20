@@ -2,7 +2,6 @@ mod chunk;
 mod mesh;
 
 use winit::keyboard::{KeyCode, PhysicalKey};
-use wgpu::{naga::AddressSpace::WorkGroup, util::DeviceExt};
 
 pub const OPENGL_TO_WGPU_MATRIX: cgmath::Matrix4<f32> = cgmath::Matrix4::new(
     1.0, 0.0, 0.0, 0.0,
