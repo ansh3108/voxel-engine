@@ -64,12 +64,17 @@ impl Chunk {
                 let y = (index/WIDTH) % HEIGHT;
                 let z = index / (WIDTH*HEIGHT);
 
-                if(y==0) {
-                    *block =1;
-                } else if x==8 && z==8 && (y==1 || y==2) {
+                let fx = x as f32;
+                let fz = z as f32;
+
+                let wave_height = ((fx / 3.0).sin() * 2.5 + (fz/3.0).cos() * 2.5) as i32 + 5;
+
+                if (y as i32) < wave_height {
+                    *block = 1;
+                } else if x == 8 && z == 8 && y < 14 {
                     *block = 1;
                 } else {
-                    *block =0;
+                    *block = 0;
                 }
             });
         }
