@@ -1,4 +1,5 @@
 use crate::mesh::Face;
+use rayon::prelude::*;
 
 pub const WIDTH: usize = 16;
 pub const HEIGHT: usize = 16;
@@ -55,5 +56,21 @@ impl Chunk {
             }
             Face::Front => self.get_block(x, y, z+1) == 0,
         }   
+
     }
+        pub fn generate(&mut self){
+            self.blocks.par_iter_mut().enumerate().for_each(|(index, block) | {
+                let x = index % WIDTH;
+                let y = (index/WIDTH) % HEIGHT;
+                let z = index / (WIDTH*HEIGHT);
+
+                if(y==0) {
+                    *block =1;
+                } else if x==8 && z==8 && (y==1 || y==2) {
+                    *block = 1;
+                } else {
+                    *block =0;
+                }
+            });
+        }
 }
