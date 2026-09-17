@@ -1,3 +1,5 @@
+use wgpu::TextureSampleType::Depth;
+
 use crate::chunk::{Chunk, DEPTH, HEIGHT, WIDTH};
 
 #[repr(C)]
@@ -32,10 +34,11 @@ impl Face {
     ];
 }
 
-fn get_face_vertices(face: Face, x: usize, y: usize, z: usize) -> [Vertex; 6] {
+fn get_face_vertices(face: Face, x: usize, y: usize, z: usize, w: usize) -> [Vertex; 6] {
     let fx = x as f32;
     let fy = y as f32;
     let fz = z as f32;
+    let fw = w as f32;
 
     let color = match face {
         Face::Top => [0.0, 0.8, 0.0],    
@@ -49,19 +52,19 @@ fn get_face_vertices(face: Face, x: usize, y: usize, z: usize) -> [Vertex; 6] {
     match face {
         Face::Front => [
             Vertex { position: [fx, fy, fz + 1.0], color },
-            Vertex { position: [fx + 1.0, fy, fz + 1.0], color },
-            Vertex { position: [fx + 1.0, fy + 1.0, fz + 1.0], color },
+            Vertex { position: [fx + fw, fy, fz + 1.0], color }, 
+            Vertex { position: [fx + fw, fy + 1.0, fz + 1.0], color }, 
             Vertex { position: [fx, fy, fz + 1.0], color },
-            Vertex { position: [fx + 1.0, fy + 1.0, fz + 1.0], color },
+            Vertex { position: [fx + fw, fy + 1.0, fz + 1.0], color }, 
             Vertex { position: [fx, fy + 1.0, fz + 1.0], color },
         ],
         Face::Back => [
-            Vertex { position: [fx + 1.0, fy, fz], color },
+            Vertex { position: [fx + fw, fy, fz], color }, 
             Vertex { position: [fx, fy, fz], color },
             Vertex { position: [fx, fy + 1.0, fz], color },
-            Vertex { position: [fx + 1.0, fy, fz], color },
+            Vertex { position: [fx + fw, fy, fz], color }, 
             Vertex { position: [fx, fy + 1.0, fz], color },
-            Vertex { position: [fx + 1.0, fy + 1.0, fz], color },
+            Vertex { position: [fx + fw, fy + 1.0, fz], color }, 
         ],
         Face::Left => [
             Vertex { position: [fx, fy, fz], color },
@@ -72,27 +75,27 @@ fn get_face_vertices(face: Face, x: usize, y: usize, z: usize) -> [Vertex; 6] {
             Vertex { position: [fx, fy + 1.0, fz], color },
         ],
         Face::Right => [
-            Vertex { position: [fx + 1.0, fy, fz + 1.0], color },
-            Vertex { position: [fx + 1.0, fy, fz], color },
-            Vertex { position: [fx + 1.0, fy + 1.0, fz], color },
-            Vertex { position: [fx + 1.0, fy, fz + 1.0], color },
-            Vertex { position: [fx + 1.0, fy + 1.0, fz], color },
-            Vertex { position: [fx + 1.0, fy + 1.0, fz + 1.0], color },
+            Vertex { position: [fx + fw, fy, fz + 1.0], color },
+            Vertex { position: [fx + fw, fy, fz], color },
+            Vertex { position: [fx + fw, fy + 1.0, fz], color },
+            Vertex { position: [fx + fw, fy, fz + 1.0], color },
+            Vertex { position: [fx + fw, fy + 1.0, fz], color },
+            Vertex { position: [fx + fw, fy + 1.0, fz + 1.0], color },
         ],
         Face::Top => [
             Vertex { position: [fx, fy + 1.0, fz + 1.0], color },
-            Vertex { position: [fx + 1.0, fy + 1.0, fz + 1.0], color },
-            Vertex { position: [fx + 1.0, fy + 1.0, fz], color },
+            Vertex { position: [fx + fw, fy + 1.0, fz + 1.0], color }, 
+            Vertex { position: [fx + fw, fy + 1.0, fz], color }, 
             Vertex { position: [fx, fy + 1.0, fz + 1.0], color },
-            Vertex { position: [fx + 1.0, fy + 1.0, fz], color },
+            Vertex { position: [fx + fw, fy + 1.0, fz], color }, 
             Vertex { position: [fx, fy + 1.0, fz], color },
         ],
         Face::Bottom => [
             Vertex { position: [fx, fy, fz], color },
-            Vertex { position: [fx + 1.0, fy, fz], color },
-            Vertex { position: [fx + 1.0, fy, fz + 1.0], color },
+            Vertex { position: [fx + fw, fy, fz], color }, 
+            Vertex { position: [fx + fw, fy, fz + 1.0], color },
             Vertex { position: [fx, fy, fz], color },
-            Vertex { position: [fx + 1.0, fy, fz + 1.0], color },
+            Vertex { position: [fx + fw, fy, fz + 1.0], color }, 
             Vertex { position: [fx, fy, fz + 1.0], color },
         ],
     }
@@ -100,15 +103,27 @@ fn get_face_vertices(face: Face, x: usize, y: usize, z: usize) -> [Vertex; 6] {
 
 pub fn generate_mesh(chunk: &Chunk) -> Vec<Vertex> {
     let mut vertices = Vec::new();
-    for x in 0..WIDTH {
-        for y in 0..HEIGHT {
+
+    for face in Face::ALL{
+        for y in 0..HEIGHT{
             for z in 0..DEPTH {
-                if chunk.get_block(x, y, z) == 0 {
-                    continue;
-                } 
-                for face in Face::ALL {
-                    if chunk.is_face_visible(x, y, z, face) {
-                        vertices.extend_from_slice(&get_face_vertices(face, x, y, z));
+                let mut run_start_x = 0;
+                let mut run_length = 0;
+
+                for x in 0..WIDTH {
+                    let is_solid = chunk.get_block(x, y, z) != 0;
+                    let is_visible = is_solid && chunk.is_face_visible(x, y, z, face);
+
+                    if is_visible {
+                        if run_length == 0 {
+                            run_start_x = x;
+                        }
+                        run_length += 1;
+                    }
+
+                    if (!is_visible || x == WIDTH -1) && run_length > 0{
+                        vertices.extend_from_slice(&get_face_vertices(face, run_start_x, y, z, run_length));
+                        run_length = 0;
                     }
                 }
             }
