@@ -254,6 +254,30 @@ struct State {
             usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST, 
         });
 
+        let alloc_start = std::time::Instant::now();
+        let mut chunk = crate::chunk::Chunk::new();
+        chunk.generate();
+        let alloc_time = alloc_start.elapsed();
+
+        let mesh_start = std::time::Instant::now();
+        let vertices = crate::mesh::generate_mesh(&chunk);
+        let num_vertices = vertices.len() as u32;
+        let mesh_time = mesh_start.elapsed();
+
+        println!("=========================================\n");
+        println!("Benchmarking Logs");
+        println!("=========================================");
+        println!("Parallel Chunk Alloc : {:?}", alloc_time);
+        println!("Greedy Mesh Execution: {:?}", mesh_time);
+        println!("Vertex Payload Size  : {} vertices", num_vertices);
+        println!("=========================================\n");
+
+        let vertex_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+            label: Some("Chunk Vertex Buffer"),
+            contents: bytemuck::cast_slice(&vertices),
+            usage: wgpu::BufferUsages::VERTEX,
+        });
+
         let mut chunk = crate::chunk::Chunk::new();
         chunk.generate();
 
@@ -512,4 +536,3 @@ fn main() {
     }
 }).unwrap();
 }
-
