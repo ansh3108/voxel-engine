@@ -56,9 +56,9 @@ impl Chunk {
             }
             Face::Front => self.get_block(x, y, z+1) == 0,
         }   
-    }
 
-    pub fn generate(&mut self){
+    }
+        pub fn generate(&mut self){
             self.blocks.par_iter_mut().enumerate().for_each(|(index, block) | {
                 let x = index % WIDTH;
                 let y = (index/WIDTH) % HEIGHT;
