@@ -40,13 +40,13 @@ fn get_face_vertices(face: Face, x: usize, y: usize, z: usize, w: usize) -> [Ver
     let fz = z as f32;
     let fw = w as f32;
 
-    let color = match face {
-        Face::Top => [0.0, 0.8, 0.0],    
-        Face::Bottom => [0.0, 0.3, 0.0], 
-        Face::Left => [0.6, 0.4, 0.2],   
-        Face::Right => [0.5, 0.3, 0.1],  
-        Face::Front => [0.7, 0.5, 0.3],  
-        Face::Back => [0.4, 0.2, 0.1],   
+let color = match face {
+        Face::Top => [0.08, 0.94, 0.58],    
+        Face::Bottom => [0.03, 0.03, 0.04], 
+        Face::Left => [0.12, 0.12, 0.14],   
+        Face::Right => [0.08, 0.08, 0.10],  
+        Face::Front => [0.10, 0.10, 0.12],  
+        Face::Back => [0.06, 0.06, 0.08],   
     };
 
     match face {
