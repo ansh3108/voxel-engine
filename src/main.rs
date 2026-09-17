@@ -1,8 +1,8 @@
 mod chunk;
 mod mesh;
 
-use winit::keyboard::{KeyCode, PhysicalKey};
-use wgpu::{naga::AddressSpace::WorkGroup, util::DeviceExt};
+use winit::keyboard::{KeyCode::{self, ContextMenu}, PhysicalKey};
+use wgpu::{Label, naga::AddressSpace::WorkGroup, util::DeviceExt};
 
 pub const OPENGL_TO_WGPU_MATRIX: cgmath::Matrix4<f32> = cgmath::Matrix4::new(
     1.0, 0.0, 0.0, 0.0,
@@ -252,6 +252,18 @@ struct State {
             label: Some("Camera Buffer"),
             contents: bytemuck::cast_slice(&[camera_uniform]),
             usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST, 
+        });
+
+        let mut chunk = crate::chunk::Chunk::new();
+        chunk.generate();
+
+        let vertices = crate::mesh::generate_mesh(&chunk);
+        let num_vertices = vertices.len() as u32;
+
+        let vertex_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor{
+            label: Some("Chunk Vertex Buffer"),
+            contents: bytemuck::cast_slice(&vertices),
+            usage: wgpu::BufferUsages::VERTEX,
         });
 
             let opengl_to_wgpu = cgmath::Matrix4::new(
