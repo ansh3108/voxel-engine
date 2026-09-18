@@ -1,8 +1,8 @@
 # voxel-engine
 
-A minimal voxel engine written in Rust using wgpu for rendering. It handles chunk-based terrain with greedy face culling and a basic camera you can fly around with.
+A high-performance, systems-level rendering engine built from absolute scratch in Rust using `wgpu`.
 
-This is an early-stage project -- the foundation is there (chunks, meshing, a perspective camera, depth testing) but there's a lot left to build.
+This project operates as a technical sandbox to demonstrate low-level memory safety, deterministic execution, and aggressive computational optimization. Built without high-level game engines, it interfaces directly with the GPU through strict ABI boundaries. The architecture explicitly mirrors the performance requirements of high-throughput blockchain runtimes (like Solana's Sealevel), focusing on parallel state execution, zero-copy memory mapping, and payload reduction.
 
 ## Usage
 
